@@ -20,17 +20,17 @@ public class AccountManager
         {
             var accountWithoutProxy = GenerateAccountWithoutProxy();
             accounts.Add(accountWithoutProxy);
-            _repository.SaveAccounts(accountWithoutProxy);
         }
+        _repository.SaveMultipleAccounts(accounts);
+
         return accounts;
     }
     
     public List<Account> GetExistingAccounts(int numberOfAccounts)
     {
-        var accounts = _repository.GetAllAccounts();
+        var accounts = _repository.LoadAllAccounts();
         return accounts.Count >= numberOfAccounts ? accounts.Take(numberOfAccounts).ToList() : accounts;
     } 
-    
     
     
     private Account GenerateAccountWithoutProxy()
@@ -38,14 +38,14 @@ public class AccountManager
         var username = RandomUsername();
         var email = EmailFromUsername(username);
         var fixedPass = FixedPassword();
-        var account = new Account(email,username, fixedPass, Status.Testing); 
+        var account = new Account(email,username, fixedPass, Status.Inactive); 
         return account;
     }
     
     
     private string EmailFromUsername(string username)
     {   
-        return username + "@gmail.com";
+        return username + "@tomistopate.eu";
     }
 
     private string RandomUsername()
@@ -60,6 +60,6 @@ public class AccountManager
 
     private string FixedPassword()
     {
-        return "sC224t0d";
+        return "sC224t0d$^*";
     }
 }

@@ -8,7 +8,7 @@ public static class MauiProgram
     public static MauiApp CreateMauiApp()
     {
         var builder = MauiApp.CreateBuilder();
-
+        Environment.SetEnvironmentVariable("Type","Development");
         builder
             .UseMauiApp<App>()
             .ConfigureFonts(fonts =>

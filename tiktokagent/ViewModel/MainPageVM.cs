@@ -2,71 +2,110 @@
 using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Support.UI;
+using tiktokagent.Core.Infrastructure;
+using tiktokagent.Core.Streaming;
 using tiktokagent.Core.Usecases;
 using tiktokagent.Domain;
-using WebDriverManager.DriverConfigs.Impl;
+using tiktokagent.Messaging;
 using WebDriverManager;
-using OpenQA.Selenium;
+using WebDriverManager.DriverConfigs.Impl;
 using WebDriverManager.Helpers;
+using Status = tiktokagent.Domain.Status;
 
 namespace tiktokagent.ViewModel;
 
-public partial class MainPageVm: ObservableObject
+public partial class MainPageVm : ObservableObject
 {
     [ObservableProperty]
     private ObservableCollection<Account> _accounts;
 
     [ObservableProperty]
-    private Account _selectedAccount;
+    private ObservableCollection<MainBot> _bottingInstances;
 
+    [ObservableProperty]
+    private Account _selectedAccount;
+    
+    [ObservableProperty]
+    private bool _isAdmin;
+
+    [ObservableProperty]
+    private bool _loading;
 
     [ObservableProperty]
     private string _numberOfAccount;
-    
+
     [ObservableProperty]
     private string _textOnStartButton;
+
     private readonly IObtainAccounts _accountRepository;
-    
+
     public MainPageVm()
     {
-        //_accountRepository = accountRepository;
+        _accountRepository = new AccountFileAdapter("C:\\Users\\franc\\RiderProjects\\tiktokagent\\tiktokagent\\Core\\accounts.json");
         _accounts = new ObservableCollection<Account>();
-        _accounts.Add(new Account("test@gmail.com", "test", "test", Status.Active));
-        _accounts.Add(new Account("test@gmail.com", "test", "test", Status.Active));
-        TextOnStartButton = "Commencer la génération de compte";
-        
+        _bottingInstances = new ObservableCollection<MainBot>();
+        TextOnStartButton = "Commencer le streaming";
+        _accountRepository.LoadAllAccounts().ForEach(account => Accounts.Add(account));
     }
-  
+
     [RelayCommand]
     private void StartBotting()
     {
-        _ = InitializeAccountsListAsync();
         Start();
+    }
+    
+    [RelayCommand]
+    private void CreateRandomAccounts()
+    {
+        Loading = true;
+        var status = InitializeAccountsListAsync();
+        Loading = false;
+
+        if (!status) return;
+    }
+
+    [RelayCommand]
+    private void LoadSavedAccounts()
+    {
+        Loading = true;
+        var accounts = _accountRepository.LoadAllAccounts();
+        accounts.ForEach(account => Accounts.Add(account));
 
     }
 
-   
-    private Task InitializeAccountsListAsync()
+    [RelayCommand]
+    private void CreateTestsAccounts()
     {
+        Loading = true;
+        var status = InitializeAccountsListAsync();
+        Loading = false;
 
+        if (!status) return;
+    }
+
+    private bool InitializeAccountsListAsync()
+    {
         var isAValidNumber = CheckIfNumberOfAccountContainValidNumber();
         if (!isAValidNumber)
         {
-            return null;
+            WeakReferenceMessenger.Default.Send(new AppElements(InteractionStatus.ErrorNumberOfAccounts));
+            return false;
         }
-        
-        var numberOfAccounts = int.Parse(NumberOfAccount);
-       
-        var accountGenerator = new AccountManager(_accountRepository);
-        accountGenerator.GenerateAccounts(numberOfAccounts).ForEach(account => Accounts.Add(account));
-        
-        
-        return null;
 
+        var numberOfAccounts = int.Parse(NumberOfAccount);
+
+        var accountGenerator = new AccountManager(_accountRepository);
+        accountGenerator
+            .GenerateAccounts(numberOfAccounts)
+            .ForEach(account => Accounts.Add(account));
+
+        return true;
     }
-    
-    
+
     private bool CheckIfNumberOfAccountContainValidNumber()
     {
         var number = int.TryParse(NumberOfAccount, out _);
@@ -75,14 +114,16 @@ public partial class MainPageVm: ObservableObject
 
     private void Start()
     {
-        new DriverManager().SetUpDriver(
-            "https://chromedriver.storage.googleapis.com/114.0.5735.16/chromedriver_win32.zip",
-            Path.Combine(Directory.GetCurrentDirectory(), "chromedrivser.exe"),
-            "chromedriver.exe");
-        var _webDriver = new ChromeDriver("C:\\Users\\franc\\RiderProjects\\tiktokagent\\tiktokagent\\Core");
-        _webDriver.Navigate().GoToUrl("https://www.tiktok.com");
+        
+        for(var i = 0; i < _accounts.Count; i++)
+        {
+            var mainBot = new MainBot(_accounts[i]);
+            BottingInstances.Add(mainBot);
+        }
+        foreach (var bottingInstance in BottingInstances)
+        {
+            bottingInstance.Start();
+        }
 
-         
     }
-
 }

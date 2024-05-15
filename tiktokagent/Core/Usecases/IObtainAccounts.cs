@@ -4,7 +4,8 @@ namespace tiktokagent.Core.Usecases;
 
 public interface IObtainAccounts
 {
-    public List<Account> GetAllAccounts();
+    public List<Account> LoadAllAccounts();
     public List<AccountProxied> GetAccountsProxieds();
-    public void SaveAccounts(Account account);
+    public void SaveMultipleAccounts(List<Account> account);
+    public void SaveAccount(Account account);
 }
