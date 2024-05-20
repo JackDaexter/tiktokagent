@@ -18,27 +18,27 @@ public class AccountManager
         var accounts = new List<Account>();
         for (var i = 0; i < numberOfAccounts; i++)
         {
-            var accountWithoutProxy = GenerateAccountWithoutProxy();
+            var accountWithoutProxy = GenerateAccount();
             accounts.Add(accountWithoutProxy);
         }
         _repository.SaveMultipleAccounts(accounts);
 
         return accounts;
     }
-    
-    public List<Account> GetExistingAccounts(int numberOfAccounts)
+
+    public async Task<List<Account>> GetExistingAccounts(int numberOfAccounts)
     {
-        var accounts = _repository.LoadAllAccounts();
+        var accounts = await _repository.LoadAllAccountsAsync();
         return accounts.Count >= numberOfAccounts ? accounts.Take(numberOfAccounts).ToList() : accounts;
     } 
     
-    
-    private Account GenerateAccountWithoutProxy()
+
+    private Account GenerateAccount()
     {
         var username = RandomUsername();
         var email = EmailFromUsername(username);
         var fixedPass = FixedPassword();
-        var account = new Account(email,username, fixedPass, Status.Inactive); 
+        var account = new Account(email,username, fixedPass, Status.Inactive,Compte.Unsubscribe,null); 
         return account;
     }
     

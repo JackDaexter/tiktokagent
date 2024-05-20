@@ -1,4 +1,6 @@
-﻿namespace tiktokagent.Domain;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+
+namespace tiktokagent.Domain;
 
 public enum Status
 {
@@ -8,6 +10,7 @@ public enum Status
     Suspended,
     Testing,
     Captcha,
+    Running
 }
 
 public enum Compte
@@ -16,20 +19,38 @@ public enum Compte
     Unsubscribe,
 }
 
-public record Account
+public record Proxy(string Ip, int Port, string Username, string Password);
+
+
+public partial class Account : ObservableObject
 {
-    public Account(string email, string username, string password, Status status, Compte compte=Compte.Unsubscribe)
+    [ObservableProperty]
+    public string email;
+
+    [ObservableProperty]
+    public string username;
+
+    [ObservableProperty]
+    public string password;
+
+    [ObservableProperty]
+    public Status status;
+
+    [ObservableProperty]
+    public Compte compte;
+
+    [ObservableProperty]
+    public Proxy proxy;
+
+    public Account(string email, string username, string password, Status status, Compte compte, Proxy proxy)
     {
         Email = email;
         Username = username;
         Password = password;
         Status = status;
         Compte = compte;
+        Proxy = proxy;
     }
 
-    public string Email { get; set; }
-    public string Username { get; init; }
-    public string Password { get; init; }
-    public Status Status { get; set; }
-    public Compte Compte { get; set; }
+    
 }

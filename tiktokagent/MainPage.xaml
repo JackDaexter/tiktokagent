@@ -1,92 +1,153 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:dg="clr-namespace:Maui.DataGrid;assembly=Maui.DataGrid"
-             x:Class="tiktokagent.MainPage"
-             xmlns:viewModels="clr-namespace:tiktokagent.ViewModel"
-             x:DataType="viewModels:MainPageVm"
-             Title="Dashboard">
+<ContentPage
+    x:Class="tiktokagent.MainPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dg="clr-namespace:Maui.DataGrid;assembly=Maui.DataGrid"
+    xmlns:icon="clr-namespace:IconPacks.IconKind;assembly=IconPacks.Material"
+    xmlns:mdc="clr-namespace:Material.Components.Maui;assembly=Material.Components.Maui"
+    xmlns:viewModels="clr-namespace:tiktokagent.ViewModel"
+    Title="Dashboard"
+    x:DataType="viewModels:MainPageVm">
 
 
-    <Grid RowDefinitions="1*" ColumnDefinitions="500,1*" Padding="20" Margin="10">
-        <Grid  Grid.Column="0" >
-            <dg:DataGrid 
-             ItemsSource="{Binding Accounts}" 
-             SelectedItem="{Binding SelectedAccount}"
-             RowHeight="20" 
-             HeaderHeight="50" 
-             BorderColor="White"
-             HeaderBackground="White" 
-             HeaderBordersVisible="True"
-             PaginationEnabled="True" 
-             RefreshingEnabled="True"
-             IsRefreshing="{Binding Loading}"
-             PageSize="15">
-                <dg:DataGrid.Columns>
-                    <dg:DataGridColumn Title="Email" PropertyName="Email" Width="200"/>
-                    <dg:DataGridColumn Title="Username" PropertyName="Username"/>
-                    <dg:DataGridColumn Title="¨Password" PropertyName="Password"/>
-                    <dg:DataGridColumn Title="Status" PropertyName="Status" Width="0.75*" StringFormat="{}{0:0.00}" />
-                </dg:DataGrid.Columns>
-            </dg:DataGrid>
-        </Grid>
+    <Grid
+        Margin="10"
+        Padding="20"
+        ColumnDefinitions="800"
+        RowDefinitions="700,1*">
 
+        <StackLayout
+            Grid.Row="0"
+            Grid.Column="0"
+            MinimumHeightRequest="650"
+            Orientation="Vertical"
+            Spacing="25">
 
-        <Grid Grid.Column="1" RowDefinitions="1*,1*,Auto,150" ColumnDefinitions="1*" >
-            <Label
-                Grid.Row="1"
-                Text="{Binding Accounts.Count, StringFormat='Nombre de compte généré: {0:N0}'}"
-                SemanticProperties.HeadingLevel="Level1"
-                FontSize="32"
-                HorizontalOptions="Center" />   
-            
-            <FlexLayout Direction="Row" AlignItems="End" JustifyContent="SpaceEvenly" Grid.Row="3" Padding="20">
-                <StackLayout Spacing="10">
-                    <Entry 
-                      PlaceholderColor="White" 
-                      Placeholder="Nombre de compte à choisir" 
-                      Keyboard="Numeric" 
-                      x:Name="NumberOfAccountEntry"
-                      Text="{Binding NumberOfAccount, Mode=TwoWay}"
-                      MaximumWidthRequest="290"
-                      BackgroundColor="Black"/>
-
-                    <Button
-                      x:Name="GenerateAccount"
-                      Text="{Binding NumberOfAccount, StringFormat='Génémrer {0:N0} compte(s) Tiktok'}"
-                      Command="{Binding CreateRandomAccountsCommand}"
-                      SemanticProperties.Hint="Counts the number of times you click"
-                      Clicked="OnStart"
-                      HorizontalOptions="Center"
-                      VerticalOptions="End"
-                      />
+            <FlexLayout
+                Direction="Row"
+                JustifyContent="SpaceBetween"
+                VerticalOptions="Start">
+                <Label FontSize="25" Text="Liste des comptes Tiktok" />
+                <StackLayout Orientation="Horizontal">
+                    <mdc:Button
+                        x:Name="Refresh"
+                        Clicked="OnAddNewAccountWindow"
+                        Command="{Binding LoadSavedAccountsCommand}"
+                        HorizontalOptions="End"
+                        IconData="{Static icon:Material.Refresh}"
+                        IsEnabled="false"
+                        MinimumWidthRequest="150"
+                        SemanticProperties.Hint="Counts the number of times you click"
+                        Style="{StaticResource TextButtonStyle}"
+                        Text="Rafraichir"
+                        VerticalOptions="Center" />
+                    <mdc:Button
+                        x:Name="AddAccountBtn"
+                        Clicked="OnAddNewAccountWindow"
+                        Command="{Binding LoadSavedAccountsCommand}"
+                        HorizontalOptions="End"
+                        IconData="{Static icon:Material.Add}"
+                        MinimumWidthRequest="150"
+                        SemanticProperties.Hint="Counts the number of times you click"
+                        Text="Ajouter un compte"
+                        VerticalOptions="Center" />
                 </StackLayout>
-
-                <Button
-                   Text="Charger des comptes"
-                   Command="{Binding LoadSavedAccountsCommand }"
-                   SemanticProperties.Hint="Counts the number of times you click"
-                   Clicked="OnStart"  
-                   HorizontalOptions="End"
-                   VerticalOptions="Center"
-                   />
-
-
-                <Button
-                  x:Name="OnStartBtn"
-                  Text="{Binding TextOnStartButton}"
-                  Command="{Binding StartBottingCommand}"
-                  SemanticProperties.Hint="Counts the number of times you click"
-                  Clicked="OnStart"  
-                  HorizontalOptions="End"
-                  VerticalOptions="Center"
-                  />           
-                
-           
             </FlexLayout>
 
-        </Grid>
-       
+            <Grid MinimumHeightRequest="500">
+                <dg:DataGrid
+                    BorderColor="White"
+                    HeaderBackground="White"
+                    HeaderBordersVisible="True"
+                    HeaderHeight="50"
+                    IsRefreshing="{Binding Loading}"
+                    ItemsSource="{Binding BottingInstances, Mode=TwoWay}"
+                    PageSize="15"
+                    PaginationEnabled="True"
+                    RefreshingEnabled="True"
+                    RowHeight="20"
+                    SelectedItem="{Binding SelectedAccount}">
+                    <dg:DataGrid.Columns>
+                        <dg:DataGridColumn
+                            Title="Email"
+                            Width="200"
+                            PropertyName="Account.Email" />
+                        <dg:DataGridColumn Title="Username" PropertyName="Account.Username" />
+                        <dg:DataGridColumn Title="¨Password" PropertyName="Account.Password" />
+                        <dg:DataGridColumn
+                            Title="Status"
+                            Width="0.75*"
+                            PropertyName="Account.Status"
+                            StringFormat="{}{0:0.00}" />
+                        <dg:DataGridColumn
+                            Title="Compte"
+                            Width="0.75*"
+                            PropertyName="Account.Compte"
+                            StringFormat="{}{0:0.00}" />
+                        <dg:DataGridColumn Title="¨BotStatus" PropertyName="BotStatus" />
+
+                    </dg:DataGrid.Columns>
+                </dg:DataGrid>
+
+            </Grid>
+            <FlexLayout
+                Grid.Row="1"
+                Grid.Column="0"
+                JustifyContent="SpaceEvenly">
+
+                <mdc:Button
+                    Command="{Binding LoadAccountFromAnotherFileCommand}"
+                    IconData="{Static icon:Material.Download}"
+                    MinimumWidthRequest="150"
+                    SemanticProperties.Hint="Counts the number of times you click"
+                    Text="Charger des comptes"
+                    VerticalOptions="Center" />
+
+                <mdc:Button
+                    Clicked="OnAddNewAccountWindow"
+                    Command="{Binding LoadSavedAccountsCommand}"
+                    IconData="{Static icon:Material.Save}"
+                    MinimumWidthRequest="150"
+                    SemanticProperties.Hint="Counts the number of times you click"
+                    Text="Sauvegarder"
+                    VerticalOptions="Center" />
+
+
+            </FlexLayout>
+        </StackLayout>
+
+        <FlexLayout
+            Grid.Row="3"
+            Padding="20"
+            AlignItems="End"
+            Direction="Row"
+            JustifyContent="SpaceEvenly">
+
+            <StackLayout Orientation="Horizontal" Spacing="10">
+                <mdc:Button
+                    BackgroundColor="#d1001f"
+                    FontColor="Black"
+                    HorizontalOptions="Start"
+                    IconColor="Black"
+                    IconData="{Static icon:Material.StopCircle}"
+                    Text="Arreter tout" />
+
+                <mdc:Button
+                    x:Name="OnStartBtn"
+                    Command="{Binding StartBottingCommand}"
+                    HorizontalOptions="End"
+                    IconData="{Static icon:Material.Robot}"
+                    MinimumWidthRequest="200"
+                    SemanticProperties.Hint="Counts the number of times you click"
+                    Text="{Binding TextOnStartButton}"
+                    VerticalOptions="Center" />
+            </StackLayout>
+
+
+        </FlexLayout>
+
+
 
     </Grid>
 </ContentPage>

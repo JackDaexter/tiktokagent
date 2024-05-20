@@ -6,6 +6,7 @@ using System.IO;
 using Path = System.IO.Path;
 using System.Text.Json;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace tiktokagent.Core.Infrastructure;
 
@@ -18,40 +19,64 @@ public class AccountFileAdapter : IObtainAccounts
         _path = path;
     }
 
-    public List<Account> LoadAllAccounts()
+    public async Task<List<Account>> LoadAllAccountsAsync()
     {
-        string docPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-        if(!File.Exists(Path.Combine(docPath, "accounts.json")))
+        string fileNameFromStorage = await SecureStorage.Default.GetAsync("FileName");
+        string filePathFromStorage = await SecureStorage.Default.GetAsync("FilePath");
+
+        string docPath = filePathFromStorage ?? Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+
+        string fileName = fileNameFromStorage ?? "accounts.json";
+
+        var jsonContent = File.ReadAllText(Path.Combine(docPath, fileName));
+
+        if (!File.Exists(Path.Combine(docPath, fileName)) || !isContentJsonContent(jsonContent))
         {
-            File.Create(Path.Combine(docPath, "accounts.json"));
+            File.Create(Path.Combine(docPath, fileName));
             return new List<Account>();
         }
-        using StreamReader reader = new(Path.Combine(docPath, "accounts.json"));
+        using StreamReader reader = new(Path.Combine(docPath, fileName));
 
-        var jsonContent = File.ReadAllText(Path.Combine(docPath, "accounts.json"));
         return System.Text.Json.JsonSerializer.Deserialize<List<Account>>(jsonContent);
     }
 
-    public List<AccountProxied> GetAccountsProxieds()
+    public async Task SaveAccount(Account accountProxied)
     {
-        string docPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-        var json = File.ReadAllText(Path.Combine(docPath, "accounts.json"));
-        return System.Text.Json.JsonSerializer.Deserialize<List<AccountProxied>>(json);
+        string fileNameFromStorage = await SecureStorage.Default.GetAsync("FileName");
+        string filePathFromStorage = await SecureStorage.Default.GetAsync("FilePath");
+        string docPath = filePathFromStorage ?? Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+        string fileName = fileNameFromStorage ?? "accounts.json";
+
+        string json = JsonConvert.SerializeObject(accountProxied, Formatting.Indented);
+
+        File.WriteAllText(Path.Combine(docPath, fileName), json);
     }
 
-    public void SaveAccount(Account accountProxied)
+    public async Task SaveMultipleAccounts(List<Account> account)
     {
-        string docPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-        string json = JsonConvert.SerializeObject(accountProxied);
+        string fileNameFromStorage = await SecureStorage.Default.GetAsync("FileName");
+        string filePathFromStorage = await SecureStorage.Default.GetAsync("FilePath");
 
-        File.WriteAllText(Path.Combine(docPath, "accounts.json"), json);
+        string docPath = filePathFromStorage ?? Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+        string fileName = fileNameFromStorage ?? "accounts.json";
+
+        var jsson = JsonConvert.SerializeObject(account, Formatting.Indented);
+
+        File.WriteAllText(Path.Combine(docPath, fileName), jsson);
     }
 
-    public void SaveMultipleAccounts(List<Account> account)
+    private Boolean isContentJsonContent(string jsonContent)
     {
-        var jsson = JsonConvert.SerializeObject(account);
-
-        string docPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-        File.WriteAllText(Path.Combine(docPath, "accounts.json"), jsson);
+        try
+        {
+            JContainer.Parse(jsonContent);
+            return true;
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
     }
+
+  
 }

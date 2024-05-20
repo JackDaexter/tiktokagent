@@ -1,14 +1,17 @@
-﻿<?xml version = "1.0" encoding = "UTF-8" ?>
-<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:local="clr-namespace:tiktokagent"
-             xmlns:system="clr-namespace:System;assembly=System.Runtime"
-             x:Class="tiktokagent.App">
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<Application
+    x:Class="tiktokagent.App"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:tiktokagent"
+    xmlns:mds="clr-namespace:Material.Components.Maui.Styles;assembly=Material.Components.Maui"
+    xmlns:system="clr-namespace:System;assembly=System.Runtime">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
+                <mds:MaterialStyles />
             </ResourceDictionary.MergedDictionaries>
             <system:Object x:Key="NumberOfAccount" />
         </ResourceDictionary>

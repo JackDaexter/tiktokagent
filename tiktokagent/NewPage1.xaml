@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="tiktokagent.NewPage1"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:md="http://materialdesigninxaml.net/winfx/2016"
+    Title="NewPage1">
+    <VerticalStackLayout Spacing="25">
+        <StackLayout
+            MaximumWidthRequest="500"
+            Orientation="Vertical"
+            Spacing="5">
+            <Label
+                Padding="0,0,0,20"
+                FontSize="20"
+                Text="Informations classique" />
+
+            <Entry
+                x:Name="Email"
+                Grid.Row="0"
+                Grid.Column="1"
+                HorizontalOptions="FillAndExpand"
+                Placeholder="Enter your email" />
+
+            <Entry
+                x:Name="Username"
+                Grid.Row="1"
+                Grid.Column="1"
+                HorizontalOptions="FillAndExpand"
+                Placeholder="Enter your username" />
+
+            <Entry
+                x:Name="Password"
+                Grid.Row="2"
+                Grid.Column="1"
+                HorizontalOptions="FillAndExpand"
+                Placeholder="Enter your password" />
+        </StackLayout>
+        <StackLayout
+            MaximumWidthRequest="500"
+            Orientation="Vertical"
+            Spacing="5">
+            <Label
+                Padding="0,0,0,20"
+                FontSize="20"
+                Text="Proxy informations (Laisser vide si pas de proxy)" />
+
+            <Entry
+                x:Name="Ip"
+                Grid.Row="0"
+                Grid.Column="1"
+                HorizontalOptions="FillAndExpand"
+                Placeholder="Addresse Ip" />
+
+            <Entry
+                x:Name="Port"
+                HorizontalOptions="FillAndExpand"
+                Placeholder="Port" />
+
+        </StackLayout>
+
+        <StackLayout
+            HorizontalOptions="Center"
+            Orientation="Horizontal"
+            Spacing="50">
+            <Button
+                Clicked="OnAddNewAccount"
+                MinimumWidthRequest="200"
+                Text="Valider" />
+
+            <Button
+                Clicked="OnClose"
+                MinimumWidthRequest="200"
+                Text="Annuler" />
+        </StackLayout>
+    </VerticalStackLayout>
+</ContentPage>

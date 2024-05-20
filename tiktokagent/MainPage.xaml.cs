@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.Maui.Controls;
 using tiktokagent.Messaging;
 using tiktokagent.ViewModel;
 
@@ -7,7 +8,7 @@ namespace tiktokagent;
 
 public partial class MainPage : ContentPage
 {
-    
+    private MainPageVm VM;
     public MainPage(MainPageVm vm)
     {
         InitializeComponent();
@@ -15,6 +16,7 @@ public partial class MainPage : ContentPage
         InitializeAppElementListener();
  
         BindingContext = vm;
+        VM = vm;
     }
 
     private void InitializeAppListener()
@@ -32,21 +34,31 @@ public partial class MainPage : ContentPage
     
     private void InitializeAppElementListener()
     {
-        WeakReferenceMessenger.Default.Register<AppElements>(this, async (m, response) =>
+
+        WeakReferenceMessenger.Default.Register<AppEvents>(this, async (m, response) =>
         {
             Color color = new();
             
-            if (response.Status.Equals(InteractionStatus.ErrorNumberOfAccounts))
+            if (response.Status.Equals(ApplicationEvents.AccountLoaded))
             {
-                DisplayAlert("Erreur", "Le nombre de compte à générer n'est pas valide.\n Changer de nombre de compte", "OK");
+                DisplayAlert("Validation", "Comptes sauvegardé", "OK");
             }
         });
     }
 
-    private async void OnStart(object sender, EventArgs e)
+  /*  private async void OnStart(object sender, EventArgs e)
     {
-        	
-    }
+        DisplayAlert("Title", "Adjoinrefdfd", "Ok");
+    }*/
 
+    private async void OnAddNewAccountWindow(object sender, EventArgs e)
+    {
+        Window window = new Window(new NewPage1(VM));
+        window.MaximumHeight = 600;
+        window.MaximumWidth = 650;
+        window.MinimumHeight = 600;
+        window.MinimumWidth = 650;
+        Application.Current.OpenWindow(window);
+    }
 
 }
