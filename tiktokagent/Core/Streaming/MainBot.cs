@@ -16,6 +16,8 @@ using System.Threading.Channels;
 using System.Collections.Concurrent;
 using tiktokagent.Messaging;
 using CommunityToolkit.Mvvm.ComponentModel;
+using tiktokagent.Core.Domain;
+
 namespace tiktokagent.Core.Streaming;
 
 public enum BotStatus
@@ -53,7 +55,7 @@ public partial class MainBot : ObservableObject
     public BrowserStatus _browserStatus;
 
     public ChromeDriver _webDriver;
-    public ConcurrentQueue<InterThreadEvents> _channel;
+    public SimpleProxy _proxy;
     public AppiumDriver _appiumDriver;
     public WebDriverWait wait;
 
@@ -85,10 +87,10 @@ public partial class MainBot : ObservableObject
         "Duet Your Twist",
         "Best Trend Compil"
     };
-    public MainBot(Account account, ConcurrentQueue<InterThreadEvents> channel)
+    public MainBot(Account account, SimpleProxy proxy)
     {
         _account = account;
-        this._channel = channel;
+        this._proxy = proxy;
         this.BotStatus = BotStatus.Inactive;
         _numberOfStream = 0;
     }
@@ -192,10 +194,10 @@ public partial class MainBot : ObservableObject
         ls.Add("enable-logging");
         ls.Add("disable-popup-blocking");
         ChromeOptions options = new ChromeOptions();
-        /*if (Account != null && Account.Proxy != null)
+        if (_proxy != null)
         {
-            options.AddArgument($"--proxy-server={Account.Proxy.Ip}:{Account.Proxy.Port}");
-        }*/
+            options.AddArgument($"--proxy-server={_proxy.Ip}:{_proxy.Port}");
+        }
         options.AddArgument("--disable-popup-blocking");
         options.AddArgument("--ignore-certificate-errors");
         options.AddAdditionalOption("useAutomationExtension", false);

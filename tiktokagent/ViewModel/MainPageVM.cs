@@ -9,6 +9,7 @@ using Newtonsoft.Json.Linq;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
+using tiktokagent.Core.Domain;
 using tiktokagent.Core.Infrastructure;
 using tiktokagent.Core.Streaming;
 using tiktokagent.Core.Usecases;
@@ -21,6 +22,9 @@ public partial class MainPageVm : ObservableObject
 {
     [ObservableProperty]
     private ObservableCollection<Account> _accounts;
+
+    [ObservableProperty]
+    private ObservableCollection<SimpleProxy> _proxies;
 
     [ObservableProperty]
     private ObservableCollection<MainBot> _bottingInstances;
@@ -47,13 +51,12 @@ public partial class MainPageVm : ObservableObject
 
     public MainPageVm()
     {
-        WeakReferenceMessenger.Default.Send(new AppEvents(ApplicationEvents.AccountLoaded)); ;
-
         _accountRepository = new AccountFileAdapter("C:\\Users\\franc\\RiderProjects\\tiktokagent\\tiktokagent\\Core\\accounts.json");
         _accounts = new ObservableCollection<Account>();
         _threads = new ObservableCollection<Task>();
         _bottingInstances = new ObservableCollection<MainBot>();
         _selectedAccount = null;
+        _proxies = new ObservableCollection<SimpleProxy>();
         SelectedAccountIsSelected = SelectedAccount == null;
         TextOnStartButton = "Commencer le streaming";
         LoadAccountFromRepository();
@@ -121,11 +124,11 @@ public partial class MainPageVm : ObservableObject
 
     private async Task LoadAccountFromRepository()
     {
+        await LoadProxyFromRepository();
+
         var accounts = await _accountRepository.LoadAllAccountsAsync();
 
         accounts.ForEach(account => {
-            Accounts.Add(account);
-
             var isElementAlreadyPresent = Accounts.Where(e => e.Email.Equals(account.Email));
             if (!isElementAlreadyPresent.Any())
             {
@@ -136,6 +139,21 @@ public partial class MainPageVm : ObservableObject
         WeakReferenceMessenger.Default.Send(new AppEvents(ApplicationEvents.AccountLoaded)); ;
 
     }
+    
+    private async Task LoadProxyFromRepository()
+    {
+        var proxies = await _accountRepository.LoadAllProxyAsync();
+
+        proxies.ForEach(proxy => {
+            Proxies.Add(proxy);
+
+            var isElementAlreadyPresent = Proxies.Where(e => e.Ip.Equals(proxy.Ip));
+            if (!isElementAlreadyPresent.Any())
+            {
+                Proxies.Add(proxy);
+            }
+        });
+    }
 
     [RelayCommand]
     private async Task LoadSavedAccounts()
@@ -144,6 +162,35 @@ public partial class MainPageVm : ObservableObject
         var accounts = await _accountRepository.LoadAllAccountsAsync();
         Accounts = new ObservableCollection<Account>(accounts);
         Loading = false;
+    }
+    
+    [RelayCommand]
+    private async Task LoadProxyFromFile()
+    {
+        try
+        {
+            var result = await FilePicker.Default.PickAsync();
+            if (result != null)
+            {
+                if (result.FileName.EndsWith("txt", StringComparison.OrdinalIgnoreCase))
+                {
+                    var docPath = Path.GetDirectoryName(result.FullPath);
+
+                    if(docPath == null)
+                    {
+                        WeakReferenceMessenger.Default.Send(new AppEvents(ApplicationEvents.FilePathError));
+                        return;
+                    }
+                    
+                    await ParseAndExtractDataFromTxtFile(result, docPath);
+
+                }
+            }
+        }
+        catch (Exception)
+        {
+            
+        }
     }
 
 
@@ -197,6 +244,28 @@ public partial class MainPageVm : ObservableObject
         var jsonContent = await File.ReadAllTextAsync(Path.Combine(docPath, result.FileName));
         return jsonContent;
     }
+    
+    private async Task ParseAndExtractDataFromTxtFile(FileResult result, string docPath)
+    {
+        await SecureStorage.Default.SetAsync("ProxyFileName", result.FileName);
+        await SecureStorage.Default.SetAsync("ProxyFilePath", docPath);
+
+        string[] lines = File.ReadAllLines(Path.Combine(docPath, result.FileName));
+
+        if(lines.Length == 0)
+        {
+            _proxies.Clear();
+            WeakReferenceMessenger.Default.Send(new AppEvents(ApplicationEvents.ErrorNumberOfAccounts));
+            return;
+        }
+        foreach(string line in lines)
+        {
+            string[] items = line.Split(':');
+            int myInteger = int.Parse(items[1]);   // Here's your integer.
+
+            _proxies.Add(new SimpleProxy(items[0], myInteger));
+        }
+    }
 
     [RelayCommand]
     private async Task RefreshDataWithAccountFile()
@@ -238,11 +307,23 @@ public partial class MainPageVm : ObservableObject
 
     private void LoadAccountInstances()
     {
-
+        Random rnd = new Random();
+        int proxySelected = rnd.Next(0, Proxies.Count);
         foreach (var account in Accounts)
         {
-            var mainBot = new MainBot(account, null);
-            BottingInstances.Add(mainBot);
+            if (Proxies.Count == 0)
+            { 
+                var mainBot = new MainBot(account, null);
+                BottingInstances.Add(mainBot);
+
+            }
+            else
+            {
+                var proxy = Proxies[proxySelected];
+                var mainBot = new MainBot(account, proxy);
+                BottingInstances.Add(mainBot);
+
+            }
         }
         WeakReferenceMessenger.Default.Send(new AppEvents(ApplicationEvents.AccountLoaded)); ;
 

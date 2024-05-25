@@ -45,16 +45,23 @@
 
             <Grid MinimumHeightRequest="500">
                 <dg:DataGrid
-                    BorderColor="White"
-                    HeaderBackground="White"
+                    
+                    BorderColor="Black"
+                    HeaderBackground=" #F2F2F2"
                     HeaderBordersVisible="True"
-                    HeaderHeight="50"
+                    HeaderHeight="35"
+                    RefreshColor="#B5A9CC"
+                    BackgroundColor="#293241"
+                    BorderThickness="1"
+                    ActiveRowColor="#A46E9D"
                     IsRefreshing="{Binding Loading}"
                     ItemsSource="{Binding BottingInstances, Mode=TwoWay}"
                     PageSize="15"
+                    FontSize="14"
+                    FontFamily="Roboto"
                     PaginationEnabled="True"
                     RefreshingEnabled="True"
-                    RowHeight="20"
+                    RowHeight="25"
                     SelectedItem="{Binding SelectedAccount}">
                     <dg:DataGrid.Columns>
                         <dg:DataGridColumn
@@ -65,38 +72,46 @@
                         <dg:DataGridColumn Title="¨Password" PropertyName="Account.Password" />
                         <dg:DataGridColumn
                             Title="Status"
-                            Width="0.75*"
-                            PropertyName="BrowserStatus"
-                            StringFormat="{}{0:0.00}" />
+                            PropertyName="BrowserStatus"/>
                     
-                        <dg:DataGridColumn Title="¨BotStatus" PropertyName="BotStatus" />
-                        <dg:DataGridColumn Title="¨Video vues" PropertyName="NumberOfStream" />
-
+                        <dg:DataGridColumn Title="BotStatus" PropertyName="BotStatus" />
+                        <dg:DataGridColumn Title="Video vues" PropertyName="NumberOfStream" Width="100"/>
                     </dg:DataGrid.Columns>
                 </dg:DataGrid>
 
             </Grid>
-            <FlexLayout
-                Grid.Row="1"
-                Grid.Column="0"
-                Padding="30,0,30,0"
-                JustifyContent="SpaceBetween">
+            <StackLayout Spacing="20">
+                <Label Text="{Binding Proxies.Count, StringFormat='Nombre de proxy chargé : {0:N0}'}" FontSize="18" Padding="30,0,0,0"/>
 
-                <mdc:Button
-                    Command="{Binding LoadAccountFromAnotherFileCommand}"
-                    IconData="{Static icon:Material.Download}"
-                    MinimumWidthRequest="150"
-                    SemanticProperties.Hint="Counts the number of times you click"
-                    Text="Charger des comptes"
-                    VerticalOptions="Center" />
+              <FlexLayout  Grid.Row="1"
+                           Grid.Column="0"
+                           Padding="30,0,30,0"
+                           JustifyContent="SpaceBetween">
+                  <StackLayout Orientation="Horizontal" Spacing="10">
+                      <mdc:Button
+                          Command="{Binding LoadAccountFromAnotherFileCommand}"
+                          IconData="{Static icon:Material.Download}"
+                          MinimumWidthRequest="150"
+                          SemanticProperties.Hint="Counts the number of times you click"
+                          Text="Charger des comptes"
+                          VerticalOptions="Center" />
+                      <mdc:Button
+                          Command="{Binding LoadProxyFromFileCommand}"
+                          IconData="{Static icon:Material.Download}"
+                          MinimumWidthRequest="150"
+                          SemanticProperties.Hint="Counts the number of times you click"
+                          Text="Charger des proxy"
+                          VerticalOptions="Center" />
+                  </StackLayout>
 
-                <mdc:Button
-                    BackgroundColor="#CA424E"
-                    Command="{Binding RemoveSelectedAccountCommand}"
-                    IconData="{Static icon:Material.Close}"
-                    MinimumWidthRequest="150"
-                    Text="Supprimer le compte" />
-            </FlexLayout>
+                  <mdc:Button
+                      BackgroundColor="#CA424E"
+                      Command="{Binding RemoveSelectedAccountCommand}"
+                      IconData="{Static icon:Material.Close}"
+                      MinimumWidthRequest="150"
+                      Text="Supprimer le compte" />
+              </FlexLayout>
+            </StackLayout>
         </StackLayout>
 
         <FlexLayout
@@ -104,17 +119,17 @@
             Padding="20"
             AlignItems="End"
             Direction="Row"
-            JustifyContent="SpaceEvenly">
-
+            JustifyContent="SpaceBetween">
+            
+            <mdc:Button
+                BackgroundColor="#d1001f"
+                FontColor="Black"
+                HorizontalOptions="Start"
+                IconColor="Black"
+                IconData="{Static icon:Material.StopCircle}"
+                Text="Arreter tout" />
+            
             <StackLayout Orientation="Horizontal" Spacing="10">
-                <mdc:Button
-                    BackgroundColor="#d1001f"
-                    FontColor="Black"
-                    HorizontalOptions="Start"
-                    IconColor="Black"
-                    IconData="{Static icon:Material.StopCircle}"
-                    Text="Arreter tout" />
-
                 <mdc:Button
                     x:Name="OnStartBtn"
                     Command="{Binding StartBottingCommand}"
@@ -125,8 +140,6 @@
                     Text="{Binding TextOnStartButton}"
                     VerticalOptions="Center" />
             </StackLayout>
-
-
         </FlexLayout>
 
 

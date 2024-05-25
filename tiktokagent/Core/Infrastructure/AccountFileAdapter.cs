@@ -21,11 +21,11 @@ public class AccountFileAdapter : IObtainAccounts
         _path = path;
     }
 
-    public async Task<List<Proxy>> LoadAllProxyAsync()
+    public async Task<List<SimpleProxy>> LoadAllProxyAsync()
     {
         try
         {
-            List<Proxy> multipleProxy = new List<Proxy>();
+            List<SimpleProxy> multipleProxy = new List<SimpleProxy>();
             string fileNameFromStorage = await SecureStorage.Default.GetAsync("ProxyFileName");
             string filePathFromStorage = await SecureStorage.Default.GetAsync("ProxyFilePath");
 
@@ -33,20 +33,16 @@ public class AccountFileAdapter : IObtainAccounts
 
             string fileName = fileNameFromStorage ?? "proxy.txt";
 
-            var jsonContent = File.ReadAllText(Path.Combine(docPath, fileName));
+            string[] lines = File.ReadAllLines(Path.Combine(docPath, fileName));
 
-            if (!File.Exists(Path.Combine(docPath, fileName)) || !IsContentJsonContent(jsonContent))
+            foreach(string line in lines)
             {
-                File.Create(Path.Combine(docPath, fileName));
-                return new List<Proxy>();
+                string[] items = line.Split(':');
+                int myInteger = int.Parse(items[1]);   // Here's your integer.
+
+                multipleProxy.Add(new SimpleProxy(items[0], myInteger));
             }
-            using StreamReader reader = new(Path.Combine(docPath, fileName));
-            var proxyMapperDeserialized = System.Text.Json.JsonSerializer.Deserialize<List<Proxy>>(jsonContent);
-            proxyMapperDeserialized.ForEach(x =>
-            {
-                var proxy = new Proxy(x.Ip, x.Port);
-                multipleProxy.Add(proxy);
-            });
+            
             return multipleProxy;
         }
         catch (Exception ex)
@@ -91,6 +87,8 @@ public class AccountFileAdapter : IObtainAccounts
         
     }
 
+
+  
     public async Task SaveAccount(Account accountProxied)
     {
         string fileNameFromStorage = await SecureStorage.Default.GetAsync("FileName");
