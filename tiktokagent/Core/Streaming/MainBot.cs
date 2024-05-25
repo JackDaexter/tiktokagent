@@ -24,6 +24,18 @@ public enum BotStatus
     Stopped,
     Inactive
 }
+public enum BrowserStatus
+{
+    Active,
+    Inactive,
+    Shadowbanned,
+    Suspended,
+    Testing,
+    Captcha,
+    Running
+}
+
+
 
 public partial class MainBot : ObservableObject
 {
@@ -34,16 +46,51 @@ public partial class MainBot : ObservableObject
     [ObservableProperty]
     public Account _account;
 
+    [ObservableProperty]
+    public int _numberOfStream;
+    
+    [ObservableProperty]
+    public BrowserStatus _browserStatus;
+
     public ChromeDriver _webDriver;
     public ConcurrentQueue<InterThreadEvents> _channel;
     public AppiumDriver _appiumDriver;
     public WebDriverWait wait;
 
+    List<string> tikTokTrends = new List<string>()
+    {
+        "Grocery List Duel",
+        "String Magic Show",
+        "Word Chain Addict",
+        "Never List Challenge",
+        "String Clue Hunt",
+        "Empty Fridge Blues",
+        "First Last Word Show",
+        "Double Trouble List",
+        "ABC Sort Race",
+        "String Quiz Test",
+        "Scrambled Fix",
+        "Would You String?",
+        "Rhyme Time List",
+        "Mad Libs Twist",
+        "Blindfold Word Hunt",
+        "String Sort Race",
+        "Story Time List",
+        "Dance String List",
+        "Don't Say String",
+        "Reverse Charades",
+        "Creative Skit",
+        "Rap List Methods",
+        "Comment Quiz List",
+        "Duet Your Twist",
+        "Best Trend Compil"
+    };
     public MainBot(Account account, ConcurrentQueue<InterThreadEvents> channel)
     {
         _account = account;
         this._channel = channel;
         this.BotStatus = BotStatus.Inactive;
+        _numberOfStream = 0;
     }
 
 
@@ -112,10 +159,10 @@ public partial class MainBot : ObservableObject
             .SendKeys(Account.Password); // Button to switch from email to telephone
         _webDriver.FindElement(By.XPath("//*[@id=\"loginContainer\"]/div[2]/form/button")).Click(); // Button to switch from email to telephone
         WaitWhileCaptchaPresent(ref wasBlocked);
-        if (wasBlocked)
+        /*if (wasBlocked)
         {
            _webDriver.FindElement(By.XPath("//*[@id=\"loginContainer\"]/div[2]/form/button")).Click(); // Button to switch from email to telephone
-        }
+        }*/
     }
 
     public void FillBirthDate(ChromeDriver _webDriver)
@@ -145,22 +192,22 @@ public partial class MainBot : ObservableObject
         ls.Add("enable-logging");
         ls.Add("disable-popup-blocking");
         ChromeOptions options = new ChromeOptions();
-        if (_account != null && _account.Proxy != null)
+        /*if (Account != null && Account.Proxy != null)
         {
-            options.AddArgument($"--proxy-server={_account.Proxy.Ip}:{_account.Proxy.Port}");
-        }
+            options.AddArgument($"--proxy-server={Account.Proxy.Ip}:{Account.Proxy.Port}");
+        }*/
         options.AddArgument("--disable-popup-blocking");
         options.AddArgument("--ignore-certificate-errors");
         options.AddAdditionalOption("useAutomationExtension", false);
         options.AddAdditionalOption("androidPackage", "com.android.chrome");
         // options.AddArgument("--incognito");
         options.AddArgument("--disable-blink-features=AutomationControlled");
+        options.AddArgument("--mute-audio");
         //options.AddExcludedArguments(ls);
         //options.AddArgument("--user-agent=Mozilla/5.0 (iPhone; CPU iPhone OS 10_3 like Mac OS X) AppleWebKit/602.1.50 (KHTML, like Gecko) CriOS/56.0.2924.75 Mobile/14E5239e Safari/602.1");
-        options.AddArgument("user-agent=Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36");
 
      
-        _webDriver = new ChromeDriver();
+        _webDriver = new ChromeDriver(options);
         wait = new WebDriverWait(_webDriver,TimeSpan.FromSeconds(50));
         _webDriver.ExecuteScript("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})");
 
@@ -182,78 +229,12 @@ public partial class MainBot : ObservableObject
     }
 
 
-    public void Subscription()
-    {
-
-        //BrowserSetUp();
-        //MobileSetUp();
-        FieldMensonge();
-        /*_webDriver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
-
-        _webDriver.Navigate().GoToUrl("https://www.tiktok.com/discover");
-
-        Actions builder = new Actions(_webDriver); // Action method in interactions Lib use for DoubleClick()
-        builder.SendKeys(Keys.Escape).Perform();*/
-
-
-        Thread.Sleep(20000);
-        /*_webDriver.FindElement(By.XPath("//*[@id=\"header-login-button\"]")).Click();
-
-        if (SubscribeLinkIsPresent(_webDriver))
-        {
-            _webDriver.FindElement(By.XPath("//*[@id=\"login-modal\"]/div[1]/div[3]/a")).Click();
-        }
-
-        _webDriver.FindElement(By.XPath("//*[@id=\"loginContainer\"]/div/div/div/div[2]/div[1]/div[2]")).Click();
-
-        _webDriver.FindElement(By.XPath("//*[@id=\"loginContainer\"]/div/form/div[4]/a")).Click(); // Subscribe with email
-        FillBirthDate(_webDriver);
-        if (_account != null)
-        {
-            _webDriver
-            .FindElement(By.XPath("//*[@id=\"loginContainer\"]/div[2]/form/div[5]/div/input"))
-            .SendKeys(_account.Email);
-
-            _webDriver
-                .FindElement(By.XPath("//*[@id=\"loginContainer\"]/div[2]/form/div[6]/div/input"))
-                .SendKeys(_account.Password);
-        }
-        else
-        {
-            _webDriver
-                .FindElement(By.XPath("//*[@id=\"loginContainer\"]/div[2]/form/div[5]/div/input"))
-                .SendKeys(_accountProxied.Email);
-
-            _webDriver
-                .FindElement(By.XPath("//*[@id=\"loginContainer\"]/div[2]/form/div[6]/div/input"))
-                .SendKeys(_accountProxied.Password);
-        }
-
-        var element = _webDriver.FindElement(By.XPath("//*[@id=\"login-modal\"]/div[1]"));
-
-        _webDriver.ExecuteScript("arguments[0].scrollIntoView(true);", element);
-        _webDriver.FindElement(By.XPath("//*[@id=\"loginContainer\"]/div[2]/form/div[7]/div/button")).Click(); //Envoyer le code
-
-        Thread.Sleep(1500);
-
-        _webDriver.FindElement(By.XPath("//*[@id=\"loginContainer\"]/div[2]/form/div[7]/div/button")).Click(); //Envoyer le code
-
-        if (_account != null)
-        {
-            _account.Status = Status.Captcha;
-        }
-        else
-        {
-            AccountProxied.Status = Status.Captcha;
-        }*/
-    }
-
     public void Start()
     {
-        Account.Status = Status.Running;
+        _browserStatus = BrowserStatus.Running;
         BrowserSetUp();
 
-        _webDriver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
+        _webDriver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(20);
 
         _webDriver.Navigate().GoToUrl("https://www.tiktok.com");
         Thread.Sleep(2000);
@@ -276,7 +257,7 @@ public partial class MainBot : ObservableObject
         {
             _webDriver
                 .FindElement(By.XPath("//*[@id=\"loginContainer\"]/div/form/div[1]/a"))
-                .Click(); // Button to swwitch from connexion to inscription
+                .Click(); // Button to switch from inscription  to connexion 
 
             if (MainBot.WeAreOnPhoneAccountCreation(_webDriver))
             {
@@ -288,6 +269,62 @@ public partial class MainBot : ObservableObject
             FillConnexionField(_webDriver);
 
         }
+        StreamWhileNonStop();
+    }
+
+    private void StreamWhileNonStop()
+    {
+        Random randomNumber = new Random();
+      
+        while (true)
+        {
+            int trendToSearch = randomNumber.Next(0, tikTokTrends.Count - 1);
+            int videoToSelect = randomNumber.Next(0, 6);
+            int waitBetweenNextVideo = randomNumber.Next(0, 25);
+            int numberVideoAfterNextSearch = randomNumber.Next(3, 25);
+
+            _webDriver
+                .FindElement(By.XPath("//*[@id=\"app-header\"]/div/div[2]/div/form/input"))
+                .SendKeys(tikTokTrends[trendToSearch]);
+            _webDriver
+                 .FindElement(By.XPath($"//*[@id=\"app-header\"]/div/div[2]/div/form/button")).Click(); // click on search
+
+            Thread.Sleep(5000);
+            /*var link = _webDriver
+                 .FindElement(By.XPath($"//*[@id=\"tabs-0-panel-search_top\"]/div/div/div[{videoToSelect}]/div[1]/div/div/a"))
+                 .GetAttribute("href");*/
+            _webDriver
+                 .FindElement(By.XPath($"//*[@id=\"tabs-0-panel-search_top\"]/div/div/div[{videoToSelect}]/div[1]")).Click();
+
+            //_webDriver.Navigate().GoToUrl(link);
+
+            StreamVideo();
+         
+        }
+    }
+
+    private void StreamVideo()
+    {
+        Random randomNumber = new Random();
+        //*[@id="main-content-video_detail"]/div/div[2]/div/div[1]/div[1]/div[3]/div[1]/button[2]
+        int waitBetweenNextVideo = randomNumber.Next(15, 45);
+        int numberVideoAfterNextSearch = randomNumber.Next(3, 25);
+        int waitTime = randomNumber.Next(1, 5);
+        for (int i = 0;  i < numberVideoAfterNextSearch; i++)
+        {
+            Thread.Sleep(TimeSpan.FromSeconds(waitBetweenNextVideo));
+            _webDriver
+                .FindElement(By.XPath($"//*[@id=\"tabs-0-panel-search_top\"]/div[3]/div/div[1]/button[3]")).Click(); // next video
+           
+
+            if(i % numberVideoAfterNextSearch == 0)
+            {
+                Thread.Sleep(TimeSpan.FromMinutes(waitTime));
+            }
+            NumberOfStream += 1;
+        }
+        _webDriver
+               .FindElement(By.XPath($"//*[@id=\"tabs-0-panel-search_top\"]/div[3]/div/div[1]/button[1]")).Click(); // close button  
     }
 
     public void Dispose()
@@ -299,11 +336,11 @@ public partial class MainBot : ObservableObject
     {
         while (CaptchaIsAsked(_webDriver))
         {
-            Account.Status = Account.Status == Status.Captcha ? Account.Status : Status.Captcha ;
+            BrowserStatus = BrowserStatus == BrowserStatus.Captcha ? BrowserStatus : BrowserStatus.Captcha ;
             Thread.Sleep(10000);
             wasBlocked = true;
 
         }
-        Account.Status = Status.Running;
+        BrowserStatus = BrowserStatus.Running;
     }
 }

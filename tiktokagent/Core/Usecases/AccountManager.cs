@@ -38,7 +38,7 @@ public class AccountManager
         var username = RandomUsername();
         var email = EmailFromUsername(username);
         var fixedPass = FixedPassword();
-        var account = new Account(email,username, fixedPass, Status.Inactive,Compte.Unsubscribe,null); 
+        var account = new Account(email,username, fixedPass); 
         return account;
     }
     
@@ -60,6 +60,6 @@ public class AccountManager
 
     private string FixedPassword()
     {
-        return "sC224t0d$^*";
+        return "sC224t0d$";
     }
 }

@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
-using Microsoft.Maui.Controls;
 using tiktokagent.Messaging;
 using tiktokagent.ViewModel;
 
@@ -41,8 +40,29 @@ public partial class MainPage : ContentPage
             
             if (response.Status.Equals(ApplicationEvents.AccountLoaded))
             {
-                DisplayAlert("Validation", "Comptes sauvegardé", "OK");
+                await DisplayAlert("Validation", "Comptes sauvegardé", "OK");
             }
+            else if (response.Status.Equals(ApplicationEvents.AccountRemoved))
+            {
+                await DisplayAlert("Suppression effectué", "Compte supprimé", "OK");
+            }
+            else if (response.Status.Equals(ApplicationEvents.SelectAccountToRemove))
+            {
+                await DisplayAlert("Selectionner un compte", "Veuillez sélectionner un compte a supprimer", "OK");
+            }
+            else if (response.Status.Equals(ApplicationEvents.AccountAlreadyExist))
+            {
+                await DisplayAlert("Compte existant", "Ce compte existe déjà", "OK");
+            }     
+            else if (response.Status.Equals(ApplicationEvents.FilePathError))
+            {
+                await DisplayAlert("Chemin inexistant", "Problème avec le chemin du fichier", "OK");
+            }
+            else if (response.Status.Equals(ApplicationEvents.AccountAdded))
+            {
+                await DisplayAlert("Compte Ajouté", "Le compte a bien été ajouté", "OK");
+            }
+            
         });
     }
 
@@ -53,11 +73,12 @@ public partial class MainPage : ContentPage
 
     private async void OnAddNewAccountWindow(object sender, EventArgs e)
     {
-        Window window = new Window(new NewPage1(VM));
-        window.MaximumHeight = 600;
-        window.MaximumWidth = 650;
-        window.MinimumHeight = 600;
-        window.MinimumWidth = 650;
+        Window window = new Window(new AddAccountPage(VM));
+        window.MaximumHeight = 400;
+        window.MaximumWidth = 580;
+        window.MinimumHeight = 400;
+        window.MinimumWidth = 580;
+        
         Application.Current.OpenWindow(window);
     }
 

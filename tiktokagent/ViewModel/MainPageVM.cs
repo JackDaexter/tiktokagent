@@ -15,8 +15,6 @@ using tiktokagent.Core.Usecases;
 using tiktokagent.Domain;
 using tiktokagent.Messaging;
 
-using Status = tiktokagent.Domain.Status;
-
 namespace tiktokagent.ViewModel;
 
 public partial class MainPageVm : ObservableObject
@@ -31,10 +29,10 @@ public partial class MainPageVm : ObservableObject
     private Channel<InterThreadEvents> channel = Channel.CreateUnbounded<InterThreadEvents>();
 
     [ObservableProperty]
-    private Account _selectedAccount;
-    
-    [ObservableProperty]
-    private bool _isAdmin;
+    private MainBot _selectedAccount;
+
+
+    public bool SelectedAccountIsSelected;
 
     [ObservableProperty]
     private bool _loading;
@@ -55,16 +53,52 @@ public partial class MainPageVm : ObservableObject
         _accounts = new ObservableCollection<Account>();
         _threads = new ObservableCollection<Task>();
         _bottingInstances = new ObservableCollection<MainBot>();
+        _selectedAccount = null;
+        SelectedAccountIsSelected = SelectedAccount == null;
         TextOnStartButton = "Commencer le streaming";
         LoadAccountFromRepository();
     }
+   
+    [RelayCommand]
+    private void RemoveSelectedAccount()
+    {
+        if(SelectedAccount == null)
+        {
+            WeakReferenceMessenger.Default.Send(new AppEvents(ApplicationEvents.AccountRemoved));
+
+            return;
+        }
+        else
+        {
+            var itemToRemove = BottingInstances.FirstOrDefault(i => i.Account.Email == SelectedAccount.Account.Email);
+
+            if (itemToRemove != null)
+            {
+                BottingInstances.Remove(itemToRemove);
+                var accounts = BottingInstances.Select(elem => elem.Account).ToList();
+                Accounts = new ObservableCollection<Account>(accounts);
+                _accountRepository.SaveMultipleAccounts(accounts);
+            }
+            WeakReferenceMessenger.Default.Send(new AppEvents(ApplicationEvents.AccountRemoved));
+
+        }
+
+    }
+
+    [RelayCommand]
+    private void SaveAccounts()
+    {
+        _accountRepository.SaveMultipleAccounts(Accounts.ToList());
+        WeakReferenceMessenger.Default.Send(new AppEvents(ApplicationEvents.AccountLoaded)); ;
+    }
+
 
     [RelayCommand]
     private void StartBotting()
     {
         foreach (var bot in BottingInstances)
         {
-            if (bot.Account.Status.Equals(Status.Inactive))
+            if (!bot.BotStatus.Equals(BotStatus.Running))
             {
                 _threads.Add(Task.Run(() =>
                 {
@@ -88,21 +122,20 @@ public partial class MainPageVm : ObservableObject
     private async Task LoadAccountFromRepository()
     {
         var accounts = await _accountRepository.LoadAllAccountsAsync();
+
         accounts.ForEach(account => {
+            Accounts.Add(account);
+
             var isElementAlreadyPresent = Accounts.Where(e => e.Email.Equals(account.Email));
-            if (isElementAlreadyPresent.Count() == 0 )
+            if (!isElementAlreadyPresent.Any())
             {
                 Accounts.Add(account);
-
             }
         });
         LoadAccountInstances();
         WeakReferenceMessenger.Default.Send(new AppEvents(ApplicationEvents.AccountLoaded)); ;
 
     }
-
-
-
 
     [RelayCommand]
     private async Task LoadSavedAccounts()
@@ -126,18 +159,24 @@ public partial class MainPageVm : ObservableObject
             {
                 if (result.FileName.EndsWith("json", StringComparison.OrdinalIgnoreCase))
                 {
-                    await SecureStorage.Default.SetAsync("FileName", result.FileName);
-                    await SecureStorage.Default.SetAsync("FilePath", result.FullPath);
+                    var docPath = Path.GetDirectoryName(result.FullPath);
 
-                    var docPath = result.FullPath;
-                    var jsonContent = File.ReadAllText(Path.Combine(docPath, result.FileName));
-                   
-                    using StreamReader reader = new(Path.Combine(docPath, result.FileName));
-                    using var stream = await result.OpenReadAsync();
+                    if(docPath == null)
+                    {
+                        WeakReferenceMessenger.Default.Send(new AppEvents(ApplicationEvents.FilePathError));
+                        return;
+                    }
+                    
+                    var jsonContent = await ParseAndExtractDataFromJsonFile(result, docPath);
+
                     var accounts = System.Text.Json.JsonSerializer.Deserialize<List<Account>>(jsonContent);
 
                     Accounts = new ObservableCollection<Account>(accounts);
-
+                    BottingInstances.Clear();
+                    foreach (var account in Accounts)
+                    {
+                        BottingInstances.Add(new MainBot(account, null));
+                    }
                 }
             }
 
@@ -148,6 +187,15 @@ public partial class MainPageVm : ObservableObject
         }
 
         Loading = false;
+    }
+
+    private static async Task<string> ParseAndExtractDataFromJsonFile(FileResult result, string docPath)
+    {
+        await SecureStorage.Default.SetAsync("FileName", result.FileName);
+        await SecureStorage.Default.SetAsync("FilePath", docPath);
+
+        var jsonContent = await File.ReadAllTextAsync(Path.Combine(docPath, result.FileName));
+        return jsonContent;
     }
 
     [RelayCommand]
@@ -191,9 +239,9 @@ public partial class MainPageVm : ObservableObject
     private void LoadAccountInstances()
     {
 
-        for (var i = 0; i < Accounts.Count; i++)
+        foreach (var account in Accounts)
         {
-            var mainBot = new MainBot(Accounts[i], null);
+            var mainBot = new MainBot(account, null);
             BottingInstances.Add(mainBot);
         }
         WeakReferenceMessenger.Default.Send(new AppEvents(ApplicationEvents.AccountLoaded)); ;
@@ -215,7 +263,15 @@ public partial class MainPageVm : ObservableObject
 
     public void AddNewAccount(Account account)
     {
+
+        var existingAccount = BottingInstances.FirstOrDefault(i => i.Account.Email == account.Email);
+        if (existingAccount != null) return;
         Accounts.Add(account);
+        var mainBot = new MainBot(account, null);
+        BottingInstances.Add(mainBot);
+
+        _accountRepository.SaveMultipleAccounts(Accounts.ToList());
+        WeakReferenceMessenger.Default.Send(new AppEvents(ApplicationEvents.AccountSaved));
     }
 }
 

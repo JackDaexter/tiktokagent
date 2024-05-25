@@ -10,7 +10,12 @@ public enum ApplicationEvents
 {
    ErrorNumberOfAccounts,
    AccountLoaded,
-   AccountSaved
+   AccountSaved,
+   AccountAdded,
+   AccountRemoved,
+   AccountAlreadyExist,
+   SelectAccountToRemove,
+   FilePathError
 }
 
 public record AppEvents(ApplicationEvents Status, string StatusMessage = "");
