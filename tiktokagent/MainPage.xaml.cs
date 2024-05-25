@@ -34,34 +34,38 @@ public partial class MainPage : ContentPage
     private void InitializeAppElementListener()
     {
 
-        WeakReferenceMessenger.Default.Register<AppEvents>(this, async (m, response) =>
+        WeakReferenceMessenger.Default.Register<AppEvents>(this,  (m, response) =>
         {
-            Color color = new();
             
             if (response.Status.Equals(ApplicationEvents.AccountLoaded))
             {
-                await DisplayAlert("Validation", "Comptes sauvegardé", "OK");
+                 DisplayAlert("Validation", "Chargement des comptes réussi", "OK");
+            }
+            /*else  if (response.Status.Equals(ApplicationEvents.AccountSaved))
+            {
+                 DisplayAlert("Validation", "Comptes sauvegardé", "OK");
             }
             else if (response.Status.Equals(ApplicationEvents.AccountRemoved))
             {
-                await DisplayAlert("Suppression effectué", "Compte supprimé", "OK");
+                 DisplayAlert("Suppression effectué", "Compte supprimé", "OK");
             }
             else if (response.Status.Equals(ApplicationEvents.SelectAccountToRemove))
             {
-                await DisplayAlert("Selectionner un compte", "Veuillez sélectionner un compte a supprimer", "OK");
+                 DisplayAlert("Selectionner un compte", "Veuillez sélectionner un compte a supprimer", "OK");
             }
             else if (response.Status.Equals(ApplicationEvents.AccountAlreadyExist))
             {
-                await DisplayAlert("Compte existant", "Ce compte existe déjà", "OK");
+                 DisplayAlert("Compte existant", "Ce compte existe déjà", "OK");
             }     
             else if (response.Status.Equals(ApplicationEvents.FilePathError))
             {
-                await DisplayAlert("Chemin inexistant", "Problème avec le chemin du fichier", "OK");
+                 DisplayAlert("Chemin inexistant", "Problème avec le chemin du fichier", "OK");
             }
             else if (response.Status.Equals(ApplicationEvents.AccountAdded))
             {
-                await DisplayAlert("Compte Ajouté", "Le compte a bien été ajouté", "OK");
-            }
+                 DisplayAlert("Compte Ajouté", "Le compte a bien été ajouté", "OK");
+            }*/
+            
             
         });
     }

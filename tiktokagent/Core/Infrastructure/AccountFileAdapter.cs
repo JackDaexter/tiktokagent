@@ -1,13 +1,10 @@
-﻿using Microsoft.Maui.Controls.Shapes;
-using tiktokagent.Core.Usecases;
-using tiktokagent.Domain;
-using System;
-using System.IO;
-using Path = System.IO.Path;
-using System.Text.Json;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using tiktokagent.Core.Domain;
+using tiktokagent.Core.Usecases;
+using tiktokagent.Domain;
+using JsonSerializer = System.Text.Json.JsonSerializer;
+
 // ReSharper disable All
 
 namespace tiktokagent.Core.Infrastructure;
@@ -23,18 +20,20 @@ public class AccountFileAdapter : IObtainAccounts
 
     public async Task<List<SimpleProxy>> LoadAllProxyAsync()
     {
+        List<SimpleProxy> multipleProxy = new List<SimpleProxy>();
         try
         {
-            List<SimpleProxy> multipleProxy = new List<SimpleProxy>();
+            
             string fileNameFromStorage = await SecureStorage.Default.GetAsync("ProxyFileName");
             string filePathFromStorage = await SecureStorage.Default.GetAsync("ProxyFilePath");
 
             string docPath = filePathFromStorage ?? Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 
             string fileName = fileNameFromStorage ?? "proxy.txt";
-
+            
             string[] lines = File.ReadAllLines(Path.Combine(docPath, fileName));
 
+          
             foreach(string line in lines)
             {
                 string[] items = line.Split(':');
@@ -43,20 +42,22 @@ public class AccountFileAdapter : IObtainAccounts
                 multipleProxy.Add(new SimpleProxy(items[0], myInteger));
             }
             
+            
             return multipleProxy;
         }
         catch (Exception ex)
         {
             Console.WriteLine("Error : " + ex.Message);
-            throw new Exception("Error");
         }
+
+        return multipleProxy;
     }
 
     public async Task<List<Account>> LoadAllAccountsAsync()
     {
+        List<Account> accounts = new List<Account>();
         try
         {
-            List<Account> accounts = new List<Account>();
             string fileNameFromStorage = await SecureStorage.Default.GetAsync("FileName");
             string filePathFromStorage = await SecureStorage.Default.GetAsync("FilePath");
 
@@ -72,7 +73,7 @@ public class AccountFileAdapter : IObtainAccounts
                 return new List<Account>();
             }
             using StreamReader reader = new(Path.Combine(docPath, fileName));
-            var accountMapperDeserialized = System.Text.Json.JsonSerializer.Deserialize<List<AccountMapper>>(jsonContent);
+            var accountMapperDeserialized = JsonSerializer.Deserialize<List<AccountMapper>>(jsonContent);
             accountMapperDeserialized.ForEach(x =>
             {
                 var account = new Account(x.Email, x.Username, x.Password);
@@ -82,9 +83,9 @@ public class AccountFileAdapter : IObtainAccounts
         }catch (Exception ex)
         {
             Console.WriteLine("Error : " + ex.Message);
-            throw new Exception("Error");
         }
-        
+
+        return accounts;
     }
 
 

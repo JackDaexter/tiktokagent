@@ -92,7 +92,7 @@ public partial class MainPageVm : ObservableObject
     private void SaveAccounts()
     {
         _accountRepository.SaveMultipleAccounts(Accounts.ToList());
-        WeakReferenceMessenger.Default.Send(new AppEvents(ApplicationEvents.AccountLoaded)); ;
+        WeakReferenceMessenger.Default.Send(new AppEvents(ApplicationEvents.AccountSaved)); ;
     }
 
 
@@ -128,15 +128,21 @@ public partial class MainPageVm : ObservableObject
 
         var accounts = await _accountRepository.LoadAllAccountsAsync();
 
-        accounts.ForEach(account => {
-            var isElementAlreadyPresent = Accounts.Where(e => e.Email.Equals(account.Email));
-            if (!isElementAlreadyPresent.Any())
-            {
-                Accounts.Add(account);
-            }
-        });
-        LoadAccountInstances();
-        WeakReferenceMessenger.Default.Send(new AppEvents(ApplicationEvents.AccountLoaded)); ;
+        try
+        {
+            accounts.ForEach(account => {
+                var isElementAlreadyPresent = Accounts.Where(e => e.Email.Equals(account.Email));
+                if (!isElementAlreadyPresent.Any())
+                {
+                    Accounts.Add(account);
+                }
+            });
+            LoadAccountInstances();
+        }catch (Exception ex)
+        {
+            WeakReferenceMessenger.Default.Send(new AppEvents(ApplicationEvents.ErrorNumberOfAccounts));
+        }
+        
 
     }
     
@@ -250,11 +256,11 @@ public partial class MainPageVm : ObservableObject
         await SecureStorage.Default.SetAsync("ProxyFileName", result.FileName);
         await SecureStorage.Default.SetAsync("ProxyFilePath", docPath);
 
-        string[] lines = File.ReadAllLines(Path.Combine(docPath, result.FileName));
+        string[] lines = await File.ReadAllLinesAsync(Path.Combine(docPath, result.FileName));
 
         if(lines.Length == 0)
         {
-            _proxies.Clear();
+            Proxies.Clear();
             WeakReferenceMessenger.Default.Send(new AppEvents(ApplicationEvents.ErrorNumberOfAccounts));
             return;
         }
@@ -263,7 +269,7 @@ public partial class MainPageVm : ObservableObject
             string[] items = line.Split(':');
             int myInteger = int.Parse(items[1]);   // Here's your integer.
 
-            _proxies.Add(new SimpleProxy(items[0], myInteger));
+            Proxies.Add(new SimpleProxy("items[0]", 5614));
         }
     }
 
@@ -325,7 +331,8 @@ public partial class MainPageVm : ObservableObject
 
             }
         }
-        WeakReferenceMessenger.Default.Send(new AppEvents(ApplicationEvents.AccountLoaded)); ;
+        //WeakReferenceMessenger.Default.Send(new AppEvents(ApplicationEvents.AccountLoaded));
+        
 
     }
 
