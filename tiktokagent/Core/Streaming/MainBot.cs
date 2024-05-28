@@ -34,6 +34,7 @@ public enum BrowserStatus
     Suspended,
     Testing,
     Captcha,
+    Code,
     Running
 }
 
@@ -133,6 +134,18 @@ public partial class MainBot : ObservableObject
         {
             return false;
         }
+    }  
+    public static bool VerificationCodeIsAsked(ChromeDriver _webDriver)
+    {
+        try
+        {
+            _webDriver.FindElement(By.XPath("/html/body/div[9]/div[2]"));
+            return true;
+        }
+        catch (NoSuchElementException e)
+        {
+            return false;
+        }
     }
     public static bool SubscribeLinkIsPresent(ChromeDriver _webDriver)
     {
@@ -159,8 +172,10 @@ public partial class MainBot : ObservableObject
         _webDriver
             .FindElement(By.XPath("//*[@id=\"loginContainer\"]/div[2]/form/div[2]/div/input"))
             .SendKeys(Account.Password); // Button to switch from email to telephone
+        
         _webDriver.FindElement(By.XPath("//*[@id=\"loginContainer\"]/div[2]/form/button")).Click(); // Button to switch from email to telephone
         WaitWhileCaptchaPresent(ref wasBlocked);
+        WaitWhileCodeVerificationIsPresent(ref wasBlocked);
         /*if (wasBlocked)
         {
            _webDriver.FindElement(By.XPath("//*[@id=\"loginContainer\"]/div[2]/form/button")).Click(); // Button to switch from email to telephone
@@ -201,7 +216,7 @@ public partial class MainBot : ObservableObject
         options.AddArgument("--disable-popup-blocking");
         options.AddArgument("--ignore-certificate-errors");
         options.AddAdditionalOption("useAutomationExtension", false);
-        options.AddAdditionalOption("androidPackage", "com.android.chrome");
+        //options.AddAdditionalOption("androidPackage", "com.android.chrome");
         // options.AddArgument("--incognito");
         options.AddArgument("--disable-blink-features=AutomationControlled");
         options.AddArgument("--mute-audio");
@@ -241,15 +256,39 @@ public partial class MainBot : ObservableObject
         _webDriver.Navigate().GoToUrl("https://www.tiktok.com");
         Thread.Sleep(2000);
 
-        Actions builder = new Actions(_webDriver); // Action method in interactions Lib use for DoubleClick()
-        builder.SendKeys(Keys.Escape).Perform();
-        _webDriver.FindElement(By.XPath("//*[@id=\"header-login-button\"]")).Click();
+        if (_webDriver.Url.Contains("redirect_url"))
+        {
+            bool wasBlocked = false;
+            _webDriver.FindElement(By.XPath("//*[@id=\"loginContainer\"]/div/div/div/div[3]/div[2]")).Click();
+            _webDriver.FindElement(By.XPath("//*[@id=\"loginContainer\"]/div[1]/form/div[1]/a"))
+                .Click(); // Button to switch from inscription  to connexion
+            
+            _webDriver
+                .FindElement(By.XPath("//*[@id=\"loginContainer\"]/div[1]/form/div[1]/input"))
+                .SendKeys(Account.Email); 
+            
+            _webDriver
+                .FindElement(By.XPath("//*[@id=\"loginContainer\"]/div[1]/form/div[2]/div/input"))
+                .SendKeys(Account.Password); 
+            
+            _webDriver.FindElement(By.XPath("//*[@id=\"loginContainer\"]/div[1]/form/button")).Click(); // Button to switch from email to telephone
+            WaitWhileCaptchaPresent(ref wasBlocked);
+            WaitWhileCodeVerificationIsPresent(ref wasBlocked);
+            Thread.Sleep(2000);
+            _webDriver.Navigate().GoToUrl("https://www.tiktok.com/search");
+        }
+        else
+        {
+            Actions builder = new Actions(_webDriver); // Action method in interactions Lib use for DoubleClick()
+            builder.SendKeys(Keys.Escape).Perform();
+            _webDriver.FindElement(By.XPath("//*[@id=\"header-login-button\"]")).Click();
 
-        wait.Until(_webDriver => _webDriver.FindElement(By.XPath("//*[@id=\"loginContainer\"]"))); // Wait for login container to appear
-        _webDriver.FindElement(By.XPath("//*[@id=\"loginContainer\"]/div/div/div/div[2]")).Click();
-        wait.Until(_webDriver =>
-            _webDriver.FindElement(By.XPath("//*[@id=\"loginContainer\"]/div/form/div[1]/a"))
-        );
+            wait.Until(_webDriver => _webDriver.FindElement(By.XPath("//*[@id=\"loginContainer\"]"))); // Wait for login container to appear
+            _webDriver.FindElement(By.XPath("//*[@id=\"loginContainer\"]/div/div/div/div[2]")).Click();
+            wait.Until(_webDriver =>
+                _webDriver.FindElement(By.XPath("//*[@id=\"loginContainer\"]/div/form/div[1]/a"))
+            );
+        }
 
         if (MainBot.ConnexionPageIsPresent(_webDriver))
         {
@@ -339,10 +378,33 @@ public partial class MainBot : ObservableObject
         while (CaptchaIsAsked(_webDriver))
         {
             BrowserStatus = BrowserStatus == BrowserStatus.Captcha ? BrowserStatus : BrowserStatus.Captcha ;
-            Thread.Sleep(10000);
+            Thread.Sleep(3000);
             wasBlocked = true;
 
         }
         BrowserStatus = BrowserStatus.Running;
+    }    
+    private void WaitWhileCodeVerificationIsPresent(ref bool wasBlocked)
+    {
+        while (VerificationCodeIsAsked(_webDriver))
+        {
+            BrowserStatus = BrowserStatus == BrowserStatus.Captcha ? BrowserStatus : BrowserStatus.Code ;
+            Thread.Sleep(3000);
+            wasBlocked = true;
+
+        }
+        BrowserStatus = BrowserStatus.Running;
+    }
+
+    public void CloseStreaming()
+    {
+        try
+        { 
+            BrowserStatus = Streaming.BrowserStatus.Inactive;
+        _webDriver.Quit();
+        }catch(Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
     }
 }

@@ -41,7 +41,7 @@ public partial class MainPage : ContentPage
             {
                  DisplayAlert("Validation", "Chargement des comptes réussi", "OK");
             }
-            /*else  if (response.Status.Equals(ApplicationEvents.AccountSaved))
+            else  if (response.Status.Equals(ApplicationEvents.AccountSaved))
             {
                  DisplayAlert("Validation", "Comptes sauvegardé", "OK");
             }
@@ -64,7 +64,7 @@ public partial class MainPage : ContentPage
             else if (response.Status.Equals(ApplicationEvents.AccountAdded))
             {
                  DisplayAlert("Compte Ajouté", "Le compte a bien été ajouté", "OK");
-            }*/
+            }
             
             
         });

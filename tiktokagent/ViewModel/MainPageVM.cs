@@ -170,6 +170,47 @@ public partial class MainPageVm : ObservableObject
         Loading = false;
     }
     
+    
+    [RelayCommand]
+    private Task StopTheStreaming()
+    {
+        foreach (var bottingInstance in BottingInstances)
+        {
+            bottingInstance.CloseStreaming();
+        }
+
+        return Task.CompletedTask;
+    }
+    
+    [RelayCommand]
+    private Task StreamWithTargetAccount()
+    {
+        if(SelectedAccount == null)
+        {
+            WeakReferenceMessenger.Default.Send(new AppEvents(ApplicationEvents.SelectAccountToRemove));
+            return Task.CompletedTask;
+        }
+
+        var accountToStream = BottingInstances.FirstOrDefault(account => account.Account.Email == SelectedAccount.Account.Email);
+        if (accountToStream == null) return Task.CompletedTask;
+        if(!accountToStream.BotStatus.Equals(BotStatus.Running))
+           {
+               _threads.Add(Task.Run(() =>
+               {
+                   try
+                   {
+                       accountToStream.BotStatus = BotStatus.Running;
+                       accountToStream.Start();
+                   }
+                   catch (Exception)
+                   {
+                       accountToStream.BotStatus = BotStatus.Stopped;
+                   }
+               }));                }
+
+           return Task.CompletedTask;
+    }
+    
     [RelayCommand]
     private async Task LoadProxyFromFile()
     {

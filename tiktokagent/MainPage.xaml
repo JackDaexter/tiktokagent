@@ -20,7 +20,7 @@
         <StackLayout
             Grid.Column="0"
             Grid.Row="0"
-            MinimumHeightRequest="650"
+            MinimumHeightRequest="700"
             Orientation="Vertical"
             Spacing="25">
 
@@ -108,12 +108,20 @@
                             VerticalOptions="Center" />
                     </StackLayout>
 
-                    <mdc:Button
-                        BackgroundColor="#CA424E"
-                        Command="{Binding RemoveSelectedAccountCommand}"
-                        IconData="{Static icon:Material.Close}"
-                        MinimumWidthRequest="150"
-                        Text="Supprimer le compte" />
+                    <StackLayout Spacing="10">
+                        <mdc:Button
+                            BackgroundColor="#CA4278"
+                            Command="{Binding StreamWithTargetAccountCommand}"
+                            IconData="{Static icon:Material.PlayCircle}"
+                            MinimumWidthRequest="150"
+                            Text="Stream avec ce compte" />
+                        <mdc:Button
+                            BackgroundColor="#CA424E"
+                            Command="{Binding RemoveSelectedAccountCommand}"
+                            IconData="{Static icon:Material.Close}"
+                            MinimumWidthRequest="150"
+                            Text="Supprimer le compte" />
+                    </StackLayout>
                 </FlexLayout>
             </StackLayout>
         </StackLayout>
@@ -127,6 +135,7 @@
 
             <mdc:Button
                 BackgroundColor="#d1001f"
+                Command="{Binding StopTheStreamingCommand}"
                 FontColor="Black"
                 HorizontalOptions="Start"
                 IconColor="Black"
