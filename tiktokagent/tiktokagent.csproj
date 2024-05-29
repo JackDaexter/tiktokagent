@@ -85,5 +85,9 @@
         <Generator>MSBuild:Compile</Generator>
       </MauiXaml>
     </ItemGroup>
+  
+    <ItemGroup>
+      <Content Include="tiktokagent_TemporaryKey.pfx" />
+    </ItemGroup>
 
 </Project>
