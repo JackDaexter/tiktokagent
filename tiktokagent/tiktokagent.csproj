@@ -15,11 +15,11 @@
         <ApplicationTitle>tiktokagent</ApplicationTitle>
 
         <!-- App Identifier -->
-        <ApplicationId>com.companyname.tiktokagent</ApplicationId>
+        <ApplicationId>com.sirius.tiktokagent</ApplicationId>
         <ApplicationIdGuid>AC537C5F-16DD-409C-BF87-5CE3E7F0C700</ApplicationIdGuid>
 
         <!-- Versions -->
-        <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+        <ApplicationDisplayVersion>1.0.0</ApplicationDisplayVersion>
         <ApplicationVersion>1</ApplicationVersion>
 
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">11.0</SupportedOSPlatformVersion>
@@ -29,6 +29,15 @@
         <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
         <PlatformTarget>x64</PlatformTarget>
+        <GenerateAppInstallerFile>True</GenerateAppInstallerFile>
+        <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+        <PackageCertificateThumbprint>503FE6798D5E66B00D13A2F4888959299A4A8CB6</PackageCertificateThumbprint>
+        <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+        <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+        <AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
+        <GenerateTestArtifacts>True</GenerateTestArtifacts>
+        <AppInstallerUri>https://storage.cloud.google.com/tiktokagentfolder/</AppInstallerUri>
+        <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
 
     </PropertyGroup>
 
@@ -51,6 +60,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Content Include=".github\main.yml" />
       <Content Include="C:\Users\franc\.nuget\packages\automation.web.core\2.11.0\contentFiles\any\netstandard2.0\browsers.json" />
       <Content Include="C:\Users\franc\.nuget\packages\automation.web.core\2.11.0\contentFiles\any\netstandard2.0\selenium-manager.exe" />
     </ItemGroup>
