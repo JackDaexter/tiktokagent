@@ -58,12 +58,6 @@
         <!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
         <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Content Include=".github\main.yml" />
-      <Content Include="C:\Users\franc\.nuget\packages\automation.web.core\2.11.0\contentFiles\any\netstandard2.0\browsers.json" />
-      <Content Include="C:\Users\franc\.nuget\packages\automation.web.core\2.11.0\contentFiles\any\netstandard2.0\selenium-manager.exe" />
-    </ItemGroup>
   
     <ItemGroup>
       <PackageReference Include="akgul.Maui.DataGrid" Version="4.0.3" />
@@ -90,6 +84,11 @@
       <MauiXaml Update="AddAccountPage.xaml">
         <Generator>MSBuild:Compile</Generator>
       </MauiXaml>
+    </ItemGroup>
+  
+    <ItemGroup>
+      <Content Include=".github\worflows\main.yml" />
+        
     </ItemGroup>
 
 </Project>
