@@ -86,8 +86,5 @@
       </MauiXaml>
     </ItemGroup>
   
-    <ItemGroup>
-      <Content Include="tiktokagent_TemporaryKey.pfx" />
-    </ItemGroup>
 
 </Project>
