@@ -33,11 +33,6 @@ jobs:
         run: dotnet build -c Release -f:net8.0-windows10.0.19041.0
         working-directory: ./
 
-      - name: Decode Signing Certificate
-        run: |
-          echo "${{ secrets.SIGNING_CERTIFICATE_BASE_64_CONTENT }}" > cert.asc
-          certutil -decode cert.asc tiktokagent_TemporaryKey.pfx
-
       - name: Install Signing Certficiate
         run: certutil -user -p ${{ secrets.SIGNING_CERTIFICATE_PASSWORD }} -Silent -importpfx tiktokagent_TemporaryKey.pfx NoRoot
 
