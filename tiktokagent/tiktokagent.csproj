@@ -85,9 +85,5 @@
         <Generator>MSBuild:Compile</Generator>
       </MauiXaml>
     </ItemGroup>
-  
-    <ItemGroup>
-      <Content Include=".github\worflows\main.yml" />
-    </ItemGroup>
 
 </Project>
