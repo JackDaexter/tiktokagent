@@ -79,5 +79,5 @@ jobs:
           tag_name: v${{ steps.extractVersion.outputs.version }}
           files: |
             ./tiktokagent/tiktokagent.appinstaller
-            ./tiktokagent/bin/Release/net8.0-windows10.0.19041.0/win10-x64/AppPackages/tiktokagent_${{ steps.extractVersion.outputs.version }}.0_Test/AutoUpdate.msix
-            ./tiktokagent/bin/Release/net8.0-windows10.0.19041.0/win10-x64/AppPackages/tiktokagent_${{ steps.extractVersion.outputs.version }}.0_Test/tiktokagent.cer
+            ./tiktokagent/bin/Release/net8.0-windows10.0.19041/win10-x64/AppPackages/tiktokagent_${{ steps.extractVersion.outputs.version }}.0_Test/AutoUpdate.msix
+            ./tiktokagent/bin/Release/net8.0-windows10.0.19041/win10-x64/AppPackages/tiktokagent_${{ steps.extractVersion.outputs.version }}.0_Test/tiktokagent.cer
