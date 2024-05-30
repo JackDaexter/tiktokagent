@@ -45,6 +45,10 @@ jobs:
         run: dotnet publish -c Release -f:net8.0-windows10.0.19041.0 /p:GenerateAppxPackageOnBuild=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint=${{ secrets.SIGNING_CERTIFICATE_THUMBPRINT }}
         working-directory: ./
 
+      - name: List all files
+        run: ls
+        working-directory: ./
+        
       - name: Extract Version
         id: extractVersion
         shell: pwsh
@@ -67,17 +71,17 @@ jobs:
 
       - name: Rename Auto-Update Installer
         shell: pwsh
-        run: Rename-Item ./tiktokagent/bin/Release/net8.0-windows10.0.19041.0/win10-x64/AppPackages/tiktokagent_${{ steps.extractVersion.outputs.version }}.0_Test/tiktokagent_${{ steps.extractVersion.outputs.version }}.0_x64.msix AutoUpdate.msix
+        run: Rename-Item ./tiktokagent/bin/Release/net8.0-windows10.0.19041.0/win10-x64/AppPackages/tiktokagent_${{steps.extractVersion.outputs.version }}.0_Test/tiktokagent_${{steps.extractVersion.outputs.version }}.0_x64.msix AutoUpdate.msix
 
       - name: Rename Certificate
         shell: pwsh
-        run: Rename-Item ./tiktokagent/bin/Release/net8.0-windows10.0.19041.0/win10-x64/AppPackages/tiktokagent{{ steps.extractVersion.outputs.version }}.0_Test/tiktokagent_${{ steps.extractVersion.outputs.version }}.0_x64.cer tiktokagent.cer
+        run: Rename-Item ./tiktokagent/bin/Release/net8.0-windows10.0.19041.0/win10-x64/AppPackages/tiktokagent{{steps.extractVersion.outputs.version }}.0_Test/tiktokagent_${{steps.extractVersion.outputs.version }}.0_x64.cer tiktokagent.cer
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ steps.extractVersion.outputs.version }}
+          tag_name: v${{steps.extractVersion.outputs.version }}
           files: |
             ./tiktokagent/tiktokagent.appinstaller
-            ./tiktokagent/bin/Release/net8.0-windows10.0.19041/win10-x64/AppPackages/tiktokagent_${{ steps.extractVersion.outputs.version }}.0_Test/AutoUpdate.msix
-            ./tiktokagent/bin/Release/net8.0-windows10.0.19041/win10-x64/AppPackages/tiktokagent_${{ steps.extractVersion.outputs.version }}.0_Test/tiktokagent.cer
+            ./tiktokagent/bin/Release/net8.0-windows10.0.19041/win10-x64/AppPackages/tiktokagent_${{steps.extractVersion.outputs.version }}.0_Test/AutoUpdate.msix
+            ./tiktokagent/bin/Release/net8.0-windows10.0.19041/win10-x64/AppPackages/tiktokagent_${{steps.extractVersion.outputs.version }}.0_Test/tiktokagent.cer
