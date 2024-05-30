@@ -47,7 +47,11 @@ jobs:
 
       - name: List all files
         run: Get-ChildItem -Path . -Directory -Recurse
-        working-directory: tiktokagent/bin/Release/net8.0-windows10.0.19041.0/win10-x64/
+        working-directory: tiktokagent/bin/Release/net8.0-windows10.0.19041.0/win10-x64/tiktokagent_${{steps.extractVersion.outputs.version }}.0_Test
+
+      - name: List good files
+        run: Get-ChildItem -Path . -Directory -Recurse
+        working-directory: tiktokagent/bin/Release/net8.0-windows10.0.19041.0/win10-x64/tiktokagent_${{steps.extractVersion.outputs.version }}_Test
         
       - name: Extract Version
         id: extractVersion
