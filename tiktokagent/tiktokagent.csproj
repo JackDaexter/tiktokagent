@@ -31,7 +31,7 @@
         <PlatformTarget>x64</PlatformTarget>
         <GenerateAppInstallerFile>True</GenerateAppInstallerFile>
         <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
-        <PackageCertificateThumbprint>503FE6798D5E66B00D13A2F4888959299A4A8CB6</PackageCertificateThumbprint>
+        <PackageCertificateThumbprint>03AA69FF30A9023DA8A171942F1366CC658E4398</PackageCertificateThumbprint>
         <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
         <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
         <AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
