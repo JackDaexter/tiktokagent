@@ -56,7 +56,7 @@ jobs:
 
       - name: Get version
         shell: pwsh
-        run: echo $version
+        run: echo ${{steps.extractVersion.outputs.version }}
       
       
       
