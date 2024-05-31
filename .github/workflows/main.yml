@@ -80,7 +80,7 @@ jobs:
 
       - name: Rename Certificate
         shell: pwsh
-        run: Rename-Item ./tiktokagent/bin/Release/net8.0-windows10.0.19041.0/win10-x64/AppPackages/tiktokagent{{steps.extractVersion.outputs.version }}.0_Test/tiktokagent_${{steps.extractVersion.outputs.version }}.0_x64.cer tiktokagent.cer
+        run: Rename-Item ./tiktokagent/bin/Release/net8.0-windows10.0.19041.0/win10-x64/AppPackages/tiktokagent_${{steps.extractVersion.outputs.version }}.0_Test/tiktokagent_${{steps.extractVersion.outputs.version }}.0_x64.cer tiktokagent.cer
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
