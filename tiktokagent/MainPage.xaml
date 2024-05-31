@@ -153,7 +153,7 @@
                     VerticalOptions="Center"
                     x:Name="OnStartBtn" />
             </StackLayout>
-            <Label FontSize="25" Text="v0.4.1" />
+            <Label FontSize="25" Text="v1.4.1" />
         </FlexLayout>
 
 
