@@ -52,15 +52,6 @@ jobs:
           $xml = [Xml] (Get-Content ./tiktokagent/tiktokagent.csproj)
           [string] $version = [Version] $xml.Project.PropertyGroup.ApplicationDisplayVersion
           echo "version=$($version)" >> $env:GITHUB_OUTPUT
-          cat $GITHUB_OUTPUT
-
-
-
-      - name: Get version
-        shell: bash
-        run: echo steps.extractVersion.outputs.version 
-      
-      
       
       - name: List all files
         run: Get-ChildItem -Path . -Directory -Recurse
